@@ -26,7 +26,7 @@ TileColour = {
 }
 
 
-mwidth = 200  # map width
+mwidth = 300  # map width
 mheight = 200  # map height
 tilesize = 5
 
@@ -116,7 +116,7 @@ moveleft1 = False
 moveright1 = False
 moveup1 = False
 movedown1 = False
-spd = 7
+spd = 10
 order = 0
 korder = 0
 

@@ -3,6 +3,7 @@ import random
 import math
 
 pygame.init()
+
 # Window
 # Tile types
 C1 = 0
@@ -71,8 +72,6 @@ down2 = load_images(direct2, 'down', ['1', '2', '4', '2'], player2col)
 # adding a rock onto map :D
 rock = load_images('bassest', 'rock', ['1'], 'rock')[0]
 
-enemy_surface = load_images('JA', 'enemy', ['1'], 'rock')[0]  # Define enemy_surface here
-
 # scaling rock
 rock_scaled = pygame.transform.scale(rock, (250, 250))
 
@@ -122,9 +121,8 @@ player2_name = font.render('Player 2', True, (0, 0, 0))
 
 # Enemy class
 class Enemy:
-    def __init__(self, x, y, speed, surface):
-        self.surface = surface
-        self.rect = pygame.Rect(x, y, surface.get_width(), surface.get_height())
+    def __init__(self, x, y, speed):
+        self.rect = pygame.Rect(x, y, 20, 20)
         self.speed = speed
 
     def move_towards_player(self, player1_rect, player2_rect):
@@ -151,8 +149,7 @@ class Enemy:
         self.rect.y += dy * self.speed
 
     def draw(self, surface):
-        # Draw the enemy on the given surface
-        surface.blit(self.surface, self.rect.topleft)
+        pygame.draw.rect(surface, (255, 0, 0), self.rect)
 
 # Game Loop
 run = True
@@ -165,10 +162,12 @@ while run:
     if CT - last_enemy_spawn_time > enemy_spawn_time:
         enemy_x = random.randint(0, mwidth * tilesize)
         enemy_y = random.randint(0, mheight * tilesize)
-        new_enemy = Enemy(enemy_x, enemy_y, 2, enemy_surface)  # Corrected line
+        new_enemy = Enemy(enemy_x, enemy_y, 2)
         enemies.append(new_enemy)
         last_enemy_spawn_time = CT
         print(f"Spawned new enemy at ({enemy_x}, {enemy_y})")
+
+
 
     # find cursor -> set rect position
     pos = pygame.mouse.get_pos()

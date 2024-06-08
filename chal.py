@@ -6,19 +6,19 @@ pygame.init()
 
 # Window
 # Tile types
-G1 = 0
-G2 = 1
-G3 = 2
+C1 = 0
+C2 = 1
+C3 = 2
 
 # Colors
-GREEN1 = (50, 0, 252)
-GREEN2 = (20, 50, 200)
-GREEN3 = (20, 20, 250)
+COL1 = (50, 0, 252)
+COL2 = (20, 50, 200)
+COL3 = (20, 20, 250)
 
 TileColour = {
-    G1: GREEN1,
-    G2: GREEN2,
-    G3: GREEN3
+    C1: COL1,
+    C2: COL2,
+    C3: COL3
 }
 
 mwidth = 200  # map width
@@ -27,7 +27,7 @@ tilesize = 5
 
 # Random Map Generator (RMG)
 def RMG(w, h):
-    return [[random.choice([G1, G2, G3]) for _ in range(mwidth)] for _ in range(mheight)]
+    return [[random.choice([C1, C2, C3]) for _ in range(mwidth)] for _ in range(mheight)]
 
 Map1 = RMG(mwidth, mheight)
 

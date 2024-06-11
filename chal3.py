@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 pygame.init()
 # Window
@@ -23,8 +24,15 @@ TileColour = {
 }
 
 mwidth = 200  # map width
-mheight = 100  # map height
+mheight = 140  # map height
 tilesize = 5
+
+# Enemy spawn variables
+enemy_spawn_time = 3000  # in milliseconds
+last_enemy_spawn_time = 0
+enemies = []
+max_enemies = 10
+current_enemy_count = 0
 
 # Random Map Generator (RMG)
 def RMG(w, h):
@@ -68,6 +76,8 @@ down2 = load_images(direct2,'down', ['1', '2', '4', '2'], player2col)
 
 # adding a rock onto map :D
 rock = load_images('bassest','rock', ['1'], 'rock')[0]
+
+enemy_surface = load_images('JA', 'enemy', ['1'], 'rock')[0]  # Define enemy_surface here
 
 # scaling rock
 rock_scaled = pygame.transform.scale(rock, (250, 250))
@@ -122,10 +132,56 @@ font = pygame.font.SysFont("Inter", 30)
 player1_name = font.render('Player 1', True, (0, 0, 0)) #later change to user input
 player2_name = font.render('Player 2', True, (0, 0, 0))
 
+class Enemy:
+    def __init__(self, x, y, speed, surface):
+        self.surface = surface
+        self.rect = pygame.Rect(x, y, surface.get_width(), surface.get_height())
+        self.speed = speed
+
+    def move_towards_player(self, player1_rect, player2_rect):
+        # Calculate the direction vector (dx, dy) towards the nearest player
+        dx1, dy1 = player1_rect.x - self.rect.x, player1_rect.y - self.rect.y
+        dx2, dy2 = player2_rect.x - self.rect.x, player2_rect.y - self.rect.y
+        distance1 = math.hypot(dx1, dy1)
+        distance2 = math.hypot(dx2, dy2)
+
+        if distance1 < distance2:
+            dx, dy = dx1, dy1
+            distance = distance1
+        else:
+            dx, dy = dx2, dy2
+            distance = distance2
+
+        if distance == 0:
+            return
+
+        dx, dy = dx / distance, dy / distance
+
+        # Move enemy towards the nearest player
+        self.rect.x += dx * self.speed
+        self.rect.y += dy * self.speed
+
+    def draw(self, surface):
+        # Draw the enemy on the given surface
+        surface.blit(self.surface, self.rect.topleft)
+
 # Game Loop
 run = True
 while run:
     #pygame.display.update()
+    CT = pygame.time.get_ticks()  # current time = ticks
+    # Spawn enemies
+    if current_enemy_count == max_enemies:
+        pass
+    elif CT - last_enemy_spawn_time > enemy_spawn_time:
+        enemy_x = random.randint(0, mwidth * tilesize)
+        enemy_y = random.randint(0, mheight * tilesize)
+        new_enemy = Enemy(enemy_x, enemy_y, 2, enemy_surface)  # Corrected line
+        enemies.append(new_enemy)
+        last_enemy_spawn_time = CT
+        print(f"Spawned new enemy at ({enemy_x}, {enemy_y})")
+        current_enemy_count += 1
+        print(current_enemy_count)
 
     #find cursor -> set rect position
     pos = pygame.mouse.get_pos()
@@ -254,6 +310,11 @@ while run:
     # Draw text titles above the characters
     gw.blit(player1_name, (idle_rect.x +23, idle_rect.y - 30))
     gw.blit(player2_name, (idle2_rect.x +23 , idle2_rect.y - 30))
+
+    # Move and draw enemies
+    for enemy in enemies:
+        enemy.move_towards_player(idle_rect, idle2_rect)
+        enemy.draw(gw)
 
     clock.tick(60)
     pygame.display.update()

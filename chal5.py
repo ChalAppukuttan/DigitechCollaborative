@@ -3,6 +3,7 @@ import random
 import math
 
 pygame.init()
+
 # Window
 # Tile types
 G1 = 0
@@ -13,9 +14,9 @@ rcol = (255, 0, 0)
 collrcol = (255, 255, 255)
 
 # Colors
-GREEN1 = (200,220,255)
-GREEN2 = (200,220,255)
-GREEN3 = (200,220,255)
+GREEN1 = (200, 220, 255)
+GREEN2 = (200, 220, 255)
+GREEN3 = (200, 220, 255)
 
 TileColour = {
     G1: GREEN1,
@@ -35,28 +36,21 @@ max_enemies = 10
 current_enemy_count = 0
 
 # Inventory Variables
-bgrdcol = (128,128,128)
-lblcol = (255,255,255)
-black = (0,0,0)
-x,y = 800,600
-window = pygame.display.set_mode((x,y))
-font = pygame.font.Font('freesansbold.ttf',32)
+bgrdcol = (128, 128, 128)
+lblcol = (255, 255, 255)
+black = (0, 0, 0)
+x, y = 800, 600
+window = pygame.display.set_mode((x, y))
+font = pygame.font.Font('freesansbold.ttf', 32)
 gun_sprite = pygame.image.load('guntest.png')  # Replace with final sprite
 sword_sprite = pygame.image.load('swordtest.png')  # Replace with final sprite
-sword_sprite=pygame.transform.scale(sword_sprite,(100,100))
-gun_sprite=pygame.transform.scale(gun_sprite,(100,100))
-show_inventory = False #Flagtocontrolinventoryvisibility
-labelmain = font.render('Inventory',True,lblcol)
-labelrect = labelmain.get_rect(center=(x//2,y//4))  # Adjust the size here
-gun_rect = gun_sprite.get_rect(x=250,y=175)  # Adjust the coordinates
-sword_rect = sword_sprite.get_rect(x=450,y=175)  # Adjust the coordinates
-
-def draw_game_elements():
-    #  Placeholder for drawing the game elements
-    #  This is where you would draw your game objects,background,etc.
-    window.fill((0,100,200))#Examplebackgroundcolorforthegame
-    #Drawothergameelementshere
-    pygame.draw.circle(window,(255,0,0),(400,300),50)#Examplegameelement
+sword_sprite = pygame.transform.scale(sword_sprite, (100, 100))
+gun_sprite = pygame.transform.scale(gun_sprite, (100, 100))
+show_inventory = False  # Flag to control inventory visibility
+labelmain = font.render('Inventory', True, lblcol)
+labelrect = labelmain.get_rect(center=(x // 2, y // 4))  # Adjust the size here
+gun_rect = gun_sprite.get_rect(x=250, y=175)  # Adjust the coordinates
+sword_rect = sword_sprite.get_rect(x=450, y=175)  # Adjust the coordinates
 
 # Random Map Generator (RMG)
 def RMG(w, h):
@@ -189,6 +183,14 @@ class Enemy:
         # Draw the enemy on the given surface
         surface.blit(self.surface, self.rect.topleft)
 
+def draw_inventory():
+    # Draw the inventory overlay
+    pygame.draw.rect(window, bgrdcol, pygame.Rect(180, 125, 450, 300))
+    pygame.draw.rect(window, black, pygame.Rect(180, 125, 450, 300), 10)
+    window.blit(labelmain, labelrect)
+    window.blit(gun_sprite, gun_rect)
+    window.blit(sword_sprite, sword_rect)
+
 # Game Loop
 run = True
 while run:
@@ -205,44 +207,94 @@ while run:
         last_enemy_spawn_time = CT
         print(f"Spawned new enemy at ({enemy_x}, {enemy_y})")
         current_enemy_count += 1
-        print(current_enemy_count)
+        print(f"Current number of enemies: {current_enemy_count}")
+        if current_enemy_count == max_enemies:
+            print("Maximum number of enemies reached")
 
-    #find cursor -> set rect position
-    pos = pygame.mouse.get_pos()
-    rect_1.center = pos
-
-    # draw both rectangles
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
 
-    # draw map
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                moveleft1 = True
+            if event.key == pygame.K_RIGHT:
+                moveright1 = True
+            if event.key == pygame.K_UP:
+                moveup1 = True
+            if event.key == pygame.K_DOWN:
+                movedown1 = True
+            if event.key == pygame.K_a:
+                moveleft = True
+            if event.key == pygame.K_d:
+                moveright = True
+            if event.key == pygame.K_w:
+                moveup = True
+            if event.key == pygame.K_s:
+                movedown = True
+
+            if event.key == pygame.K_i:
+                show_inventory = True
+            if event.key == pygame.K_u:
+                show_inventory = False
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT:
+                moveleft1 = False
+            if event.key == pygame.K_RIGHT:
+                moveright1 = False
+            if event.key == pygame.K_UP:
+                moveup1 = False
+            if event.key == pygame.K_DOWN:
+                movedown1 = False
+            if event.key == pygame.K_a:
+                moveleft = False
+            if event.key == pygame.K_d:
+                moveright = False
+            if event.key == pygame.K_w:
+                moveup = False
+            if event.key == pygame.K_s:
+                movedown = False
+
+
+    window.fill((0, 0, 0))
+    gw.fill((0, 0, 0))
+
     for row in range(mheight):
-        for col in range(mwidth):
-            pygame.draw.rect(gw, TileColour[Map1[row][col]], (col * tilesize, row * tilesize, tilesize, tilesize))
+        for column in range(mwidth):
+            colour = TileColour[Map1[row][column]]
+            pygame.draw.rect(gw, colour, (column * tilesize, row * tilesize, tilesize, tilesize))
+
+    if CT - LT >= cdelay:  # update animation frame
+        order = (order + 1) % len(idle)
+        LT = CT
+
+    if CT - LT >= cdelay:  # update animation frame
+        korder = (korder + 1) % len(idle2)
+        LT = CT
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_a] and idle_rect.left > 0 - 20: #LEFT
+    if keys[pygame.K_a] and idle_rect.left > 0 - 20:  # LEFT
         moveleft = True
         idle_rect.x -= spd
         moveright = moveup = movedown = lightpower = deathani = False
 
-    elif keys[pygame.K_d] and idle_rect.right < mwidth * tilesize + 15: #RGIHT
+    elif keys[pygame.K_d] and idle_rect.right < mwidth * tilesize + 15:  # RGIHT
         moveright = True
         idle_rect.x += spd
         moveleft = moveup = movedown = lightpower = deathani = False
 
-    elif keys[pygame.K_w] and idle_rect.top > 0-15:# UP
+    elif keys[pygame.K_w] and idle_rect.top > 0 - 15:  # UP
         moveup = True
         idle_rect.y -= spd
         moveleft = moveright = movedown = lightpower = deathani = False
 
-    elif keys[pygame.K_s] and idle_rect.bottom < mheight * tilesize + 0: #DOWN
+    elif keys[pygame.K_s] and idle_rect.bottom < mheight * tilesize + 0:  # DOWN
         movedown = True
         idle_rect.y += spd
         moveleft = moveright = moveup = lightpower = deathani = False
 
-    elif keys[pygame.K_g]:#POWER
+    elif keys[pygame.K_g]:  # POWER
         lightpower = True
         moveup = moveleft = moveright = movedown = deathani = False
 
@@ -253,94 +305,52 @@ while run:
         moveleft = moveright = moveup = movedown = lightpower = deathani = False
         rcol = (0, 255, 0)
 
+        # Movement logic for character 2
+        if keys[pygame.K_LEFT] and idle2_rect.left > 0 - 20:  # LEFT
+            moveleft1 = True
+            idle2_rect.x -= spd
+            moveright1 = moveup1 = movedown1 = lightpower2 = deathani2 = False
+        elif keys[pygame.K_RIGHT] and idle2_rect.right < mwidth * tilesize + 15:  # RIGHT
+            moveright1 = True
+            idle2_rect.x += spd
+            moveleft1 = moveup1 = movedown1 = lightpower2 = deathani2 = False
+        elif keys[pygame.K_UP] and idle2_rect.top > 0 - 15:  # UP
+            moveup1 = True
+            idle2_rect.y -= spd
+            moveleft1 = moveright1 = movedown1 = lightpower2 = deathani2 = False
+        elif keys[pygame.K_DOWN] and idle2_rect.bottom < mheight * tilesize:  # DOWN
+            movedown1 = True
+            idle2_rect.y += spd
+            moveleft1 = moveright1 = moveup1 = lightpower2 = deathani2 = False
+        elif keys[pygame.K_y]:  # POWER
+            lightpower2 = True
+            moveup1 = moveleft1 = moveright1 = movedown1 = deathani2 = False
 
+        elif rect_1.colliderect(idle2_rect):
+            rcol = (255, 0, 0)
+            deathani2 = True
+        else:
+            moveleft1 = moveright1 = moveup1 = movedown1 = lightpower2 = deathani2 = False
 
-    # Movement logic for character 2
-    if keys[pygame.K_LEFT] and idle2_rect.left > 0 - 20:  # LEFT
-        moveleft1 = True
-        idle2_rect.x -= spd
-        moveright1 = moveup1 = movedown1 = lightpower2 = deathani2 = False
-    elif keys[pygame.K_RIGHT] and idle2_rect.right < mwidth * tilesize + 15:  # RIGHT
-        moveright1 = True
-        idle2_rect.x += spd
-        moveleft1 = moveup1 = movedown1 = lightpower2 = deathani2 = False
-    elif keys[pygame.K_UP] and idle2_rect.top > 0 - 15:  # UP
-        moveup1 = True
-        idle2_rect.y -= spd
-        moveleft1 = moveright1 = movedown1 = lightpower2 = deathani2 = False
-    elif keys[pygame.K_DOWN] and idle2_rect.bottom < mheight * tilesize:  # DOWN
-        movedown1 = True
-        idle2_rect.y += spd
-        moveleft1 = moveright1 = moveup1 = lightpower2 = deathani2 = False
-    elif keys[pygame.K_y]:#POWER
-        lightpower2 = True
-        moveup1 = moveleft1 = moveright1 = movedown1 = deathani2 = False
-
-    elif rect_1.colliderect(idle2_rect):
-        rcol = (255, 0, 0)
-        deathani2 = True
-    else:
-        moveleft1 = moveright1 = moveup1 = movedown1 = lightpower2 = deathani2 = False
-
-    CT = pygame.time.get_ticks() #current time = ticks
-    if CT - LT > cdelay: #if time is greater than the cycle delay
-        order += 1
-        korder += 1
-        if order >= len(idle):
-            order = 0
-        if korder >= len(idle2_rect):
-            korder = 0
-        LT = CT
-
-    if moveleft:
-        gw.blit(left[order], idle_rect.topleft)
-    elif moveright:
-        gw.blit(right[order], idle_rect.topleft)
-    elif moveup:
-        gw.blit(up[order], idle_rect.topleft)
-    elif movedown:
-        gw.blit(down[order], idle_rect.topleft)
-    elif lightpower:
-        gw.blit(light[0], idle_rect.topleft)
-    elif deathani:
-        gw.blit(death[0], idle_rect.topleft)
-    else:
-        gw.blit(idle[order], idle_rect.topleft)
-
-    if moveleft1:
-        gw.blit(left2[korder], idle2_rect.topleft)
-    elif moveright1:
-        gw.blit(right2[korder], idle2_rect.topleft)
-    elif moveup1:
-        gw.blit(up2[korder], idle2_rect.topleft)
-    elif movedown1:
-        gw.blit(down2[korder], idle2_rect.topleft)
-    elif lightpower2:
-        gw.blit(light2[0], idle2_rect.topleft)
-    elif deathani2:
-        gw.blit(death2[0], idle2_rect.topleft)
-    else:
-        gw.blit(idle2[korder], idle2_rect.topleft)
-
-
-
-    # draw the rock (ABOVE EVERYTHING ELSE)
-    gw.blit(rock_scaled, rock_rect.topleft)  # Draw the scaled rock
-
-    # draw the rectangle (ABOVE EVERYTHING ELSE)
-    pygame.draw.rect(gw, rcol, rect_1)
-
-    # Draw text titles above the characters
-    gw.blit(player1_name, (idle_rect.x +23, idle_rect.y - 30))
-    gw.blit(player2_name, (idle2_rect.x +23 , idle2_rect.y - 30))
-
-    # Move and draw enemies
     for enemy in enemies:
         enemy.move_towards_player(idle_rect, idle2_rect)
         enemy.draw(gw)
 
-    clock.tick(60)
-    pygame.display.update()
+    player1_name_rect = player1_name.get_rect(center=(idle_rect.x + 25, idle_rect.y - 15))
+    gw.blit(player1_name, player1_name_rect)
 
-# Quit Pygame
+    player2_name_rect = player2_name.get_rect(center=(idle2_rect.x + 25, idle2_rect.y - 15))
+    gw.blit(player2_name, player2_name_rect)
+
+    window.blit(gw, (0, 0))
+
+    if show_inventory:
+        draw_inventory()
+
+    pos = pygame.mouse.get_pos()
+    rect_1.center = pos
+    pygame.draw.rect(gw, rcol, rect_1)
+    pygame.display.flip()
+    clock.tick(60)
+
 pygame.quit()

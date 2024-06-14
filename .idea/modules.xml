@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/digitechCollab.iml" filepath="$PROJECT_DIR$/.idea/digitechCollab.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/DigitechCollaborative.iml" filepath="$PROJECT_DIR$/.idea/DigitechCollaborative.iml" />
     </modules>
   </component>
 </project>

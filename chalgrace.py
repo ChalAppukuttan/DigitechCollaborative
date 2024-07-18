@@ -24,8 +24,9 @@ TileColour = {
 }
 
 mwidth = 200  # map width
-mheight = 140  # map height
+mheight = 100  # map height
 tilesize = 5
+
 
 # Enemy spawn variables
 enemy_spawn_time = 3000  # in milliseconds
@@ -33,32 +34,6 @@ last_enemy_spawn_time = 0
 enemies = []
 max_enemies = 10
 current_enemy_count = 0
-
-bgrdcol=(128,128,128)
-lblcol=(255,255,255)
-
-font=pygame.font.Font('freesansbold.ttf',32)
-
-
-x,y=800,600
-window=pygame.display.set_mode((x,y))
-
-
-gun_sprite=pygame.image.load('guntest.png')#Replacewithfinalsprite
-sword_sprite=pygame.image.load('swordtest.png')#Replacewithfinalsprite
-
-sword_sprite=pygame.transform.scale(sword_sprite,(100,100))
-gun_sprite=pygame.transform.scale(gun_sprite,(100,100))
-
-show_inventory=False #Flagtocontrolinventoryvisibility
-
-labelmain=font.render('Inventory',True,lblcol)
-labelrect=labelmain.get_rect(center=(x//2,y//4))#Adjustthesizehere
-
-gun_rect=gun_sprite.get_rect(x=250,y=175) #Adjustthecoordinates
-sword_rect=sword_sprite.get_rect(x=450,y=175) #Adjustthecoordinates
-
-black = (0,0,0)
 
 # Random Map Generator (RMG)
 def RMG(w, h):
@@ -74,33 +49,10 @@ running = True
 def load_images(directory, a_name, a_num, colour): #animation Name, animation Number #colour
     return [pygame.image.load(f'{directory}/{a_name}{i}{colour}.png') for i in a_num]
 
-def draw_inventory():
-    #Drawtheinventoryoverlay
-    pygame.draw.rect(window,bgrdcol,pygame.Rect(180,125,450,300))
-    pygame.draw.rect(window,black,pygame.Rect(180,125,450,300),10)
-    window.blit(labelmain,labelrect)
-    window.blit(gun_sprite,gun_rect)
-    window.blit(sword_sprite,sword_rect)
-
-def inv():
-    global show_inventory
-    show_inventory=True
-
-def killinv():
-    global show_inventory
-    show_inventory=False
-
-def draw_game_elements():
-    #Placeholderfordrawingthegameelements
-    #Thisiswhereyouwoulddrawyourgameobjects,background,etc.
-    window.fill((0,100,200))#Examplebackgroundcolorforthegame
-    #Drawothergameelementshere
-    pygame.draw.circle(window,(255,0,0),(400,300),50)#Examplegameelement
-
 direct1 = 'RED'
 player1col = direct1.lower()
 
-direct2 = 'BLUE'
+direct2 = 'GREEN'
 player2col = direct2.lower()
 
 # gooba sprite
@@ -125,9 +77,7 @@ down2 = load_images(direct2,'down', ['1', '2', '4', '2'], player2col)
 
 # adding a rock onto map :D
 rock = load_images('bassest','rock', ['1'], 'rock')[0]
-
 enemy_surface = load_images('JA', 'enemy', ['1'], 'rock')[0]  # Define enemy_surface here
-
 # scaling rock
 rock_scaled = pygame.transform.scale(rock, (250, 250))
 
@@ -180,6 +130,7 @@ cdelay = 210  # cycle delay is 200 ms
 font = pygame.font.SysFont("Inter", 30)
 player1_name = font.render('Player 1', True, (0, 0, 0)) #later change to user input
 player2_name = font.render('Player 2', True, (0, 0, 0))
+collision = False
 
 class Enemy:
     def __init__(self, x, y, speed, surface):
@@ -219,7 +170,7 @@ class Enemy:
 # Game Loop
 run = True
 while run:
-    #pygame.display.update()
+    # pygame.display.update()
     CT = pygame.time.get_ticks()  # current time = ticks
     # Spawn enemies
     if current_enemy_count == max_enemies:
@@ -250,22 +201,22 @@ while run:
             pygame.draw.rect(gw, TileColour[Map1[row][col]], (col * tilesize, row * tilesize, tilesize, tilesize))
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_a] and idle_rect.left > 0 - 20: #LEFT
+    if keys[pygame.K_a] and idle_rect.left > 0 - 20 and collision == False: #LEFT
         moveleft = True
         idle_rect.x -= spd
         moveright = moveup = movedown = lightpower = deathani = False
 
-    elif keys[pygame.K_d] and idle_rect.right < mwidth * tilesize + 15: #RGIHT
+    elif keys[pygame.K_d] and idle_rect.right < mwidth * tilesize + 15 and collision == False: #RGIHT
         moveright = True
         idle_rect.x += spd
         moveleft = moveup = movedown = lightpower = deathani = False
 
-    elif keys[pygame.K_w] and idle_rect.top > 0-15:# UP
+    elif keys[pygame.K_w] and idle_rect.top > 0-15 and collision == False:# UP
         moveup = True
         idle_rect.y -= spd
         moveleft = moveright = movedown = lightpower = deathani = False
 
-    elif keys[pygame.K_s] and idle_rect.bottom < mheight * tilesize + 0: #DOWN
+    elif keys[pygame.K_s] and idle_rect.bottom < mheight * tilesize + 0 and collision == False: #DOWN
         movedown = True
         idle_rect.y += spd
         moveleft = moveright = moveup = lightpower = deathani = False
@@ -277,23 +228,19 @@ while run:
     elif rect_1.colliderect(idle_rect):
         rcol = (255, 0, 0)
         deathani = True
+
+    elif idle_rect.colliderect(idle2_rect):
+        print('collision!')
+        #collision = True
+    #elif collision == True:
+
+        #moveleft = moveright = moveup = movedown = lightpower = deathani = False
     else:
         moveleft = moveright = moveup = movedown = lightpower = deathani = False
         rcol = (0, 255, 0)
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_i:
-                inv()
+        collision = False
 
 
-        # Drawthegameelements
-        #draw_game_elements()
-
-        # Updatethedisplay
-        pygame.display.flip()
 
     # Movement logic for character 2
     if keys[pygame.K_LEFT] and idle2_rect.left > 0 - 20:  # LEFT
@@ -365,7 +312,7 @@ while run:
 
 
     # draw the rock (ABOVE EVERYTHING ELSE)
-    gw.blit(rock_scaled, rock_rect.topleft)  # Draw the scaled rock
+    #wwagw.blit(rock_scaled, rock_rect.topleft)  # Draw the scaled rock
 
     # draw the rectangle (ABOVE EVERYTHING ELSE)
     pygame.draw.rect(gw, rcol, rect_1)
@@ -374,7 +321,6 @@ while run:
     gw.blit(player1_name, (idle_rect.x +23, idle_rect.y - 30))
     gw.blit(player2_name, (idle2_rect.x +23 , idle2_rect.y - 30))
 
-    # Move and draw enemies
     for enemy in enemies:
         enemy.move_towards_player(idle_rect, idle2_rect)
         enemy.draw(gw)

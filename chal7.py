@@ -187,7 +187,7 @@ class Enemy:
         self.rect = pygame.Rect(x, y, surface.get_width(), surface.get_height())
         self.speed = speed
 
-    def move_towards_player(self, player1_rect, player2_rect, lightpower1, lightpower2):
+    def MoveToPlayer(self, player1_rect, player2_rect, lightpower1, lightpower2):
         if lightpower1 and lightpower2:
             # Both players are camouflaged; stay still
             return
@@ -227,15 +227,15 @@ class Enemy:
 # Game Loop
 run = True
 while run:
-    #pygame.display.update()
-    CT = pygame.time.get_ticks()  # current time = ticks
-    # Spawn enemies
+    pygame.display.update()
+    CT = pygame.time.get_ticks()  # current time = ticks (time since game start)
+    # spawn enemies
     if current_enemy_count == max_enemies:
         pass
     elif CT - last_enemy_spawn_time > enemy_spawn_time:
         enemy_x = random.randint(0, mwidth * tilesize)
         enemy_y = random.randint(0, mheight * tilesize)
-        new_enemy = Enemy(enemy_x, enemy_y, 2, enemy_surface)  # Corrected line
+        new_enemy = Enemy(enemy_x, enemy_y, 2, enemy_surface)
         enemies.append(new_enemy)
         last_enemy_spawn_time = CT
         print(f"Spawned new enemy at ({enemy_x}, {enemy_y})")
@@ -384,7 +384,7 @@ while run:
 
     # Move and draw enemies
     for enemy in enemies:
-        enemy.move_towards_player(idle_rect, idle2_rect, lightpower, lightpower2)
+        enemy.MoveToPlayer(idle_rect, idle2_rect, lightpower, lightpower2)
         enemy.draw(gw)
 
     clock.tick(60)
